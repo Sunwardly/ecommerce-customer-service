@@ -82,7 +82,7 @@ cd ecommerce-customer-service
 Set-Location D:\QWER\Projects\ecommerce-customer-service
 ```
 
-仓库地址：[Sunwardly/ecommerce-customer-service](https://github.com/Sunwardly/ecommerce-customer-service)，默认分支 `main`。空的 `main.py` 不是应用入口。
+仓库地址：[Sunwardly/ecommerce-customer-service](https://github.com/Sunwardly/ecommerce-customer-service)，默认分支 `main`。应用入口见各服务的启动步骤。
 
 ### 2. 准备数据库与演示数据
 
@@ -216,7 +216,6 @@ ecommerce-customer-service/
 ├── README.md / LICENSE / .gitignore
 ├── .github/workflows/checks.yml     # 自动检查
 ├── scripts/                        # 统一检查与提交候选扫描
-├── CODEX_HANDOFF.md                 # 早期快照，部分描述已被后续实现更新
 ├── customer-service-frontend/
 │   ├── package.json / package-lock.json
 │   ├── index.html / vite.config.js
@@ -224,8 +223,7 @@ ecommerce-customer-service/
 │   │   ├── main.js                  # createApp(App).mount('#app')
 │   │   └── App.vue                  # 主界面、会话初始化、消息与对象列表
 │   ├── public/images/support-avatar.svg
-│   ├── public/digital-human/        # 视频资源，存在不代表当前主流程使用
-│   └── vue-demo/                    # 另一个 Vue 示例，非当前网站入口
+│   └── tests/                      # 桌面与手机聊天回归
 ├── customer-service-backend/
 │   ├── pyproject.toml / uv.lock
 │   ├── flow_config/                 # system_flows.yml、user_flows.yml
@@ -251,7 +249,7 @@ ecommerce-customer-service/
 │   ├── Dockerfile / main.py / .env.example
 │   ├── tests/                      # 业务接口与初始化回归
 │   └── app/                        # app.py、api.py、config.py、init_demo.py、数据库与模型
-└── docs/                           # 实现说明、阶段规划与验收截图
+└── docs/                           # 功能边界与资源授权说明
 ```
 
 本机另有 `backups/`、`.runtime/`、虚拟环境、依赖目录和构建产物，它们不是公共仓库的必要源码。
@@ -281,11 +279,11 @@ npm.cmd audit --audit-level=high
 # 在业务后端目录
 uv run --frozen python -X utf8 -m unittest discover -s tests -v
 
-# 已配置两个 .env，且两个前端（含 vue-demo）均安装依赖后，在根目录统一检查
+# 已配置两个 .env，且主前端安装依赖后，在根目录统一检查
 .\scripts\check.ps1
 ```
 
-Playwright 使用本机 5175，不占用演示站点 5174。GitHub Actions 定义位于 `.github/workflows/checks.yml`，上传后由 GitHub 执行；本地执行通过不等于远程 CI 已运行。`vue-demo` 是独立遗留示例，使用其自己的 `npm ci`、`npm audit` 和 `npm run build`，主界面测试不覆盖数字人云功能。
+Playwright 使用本机 5175，不占用演示站点 5174。GitHub Actions 定义位于 `.github/workflows/checks.yml`，执行前后端检查及独立 MySQL 初始化。最新结果见仓库的 Actions 页面；这些检查不覆盖数字人云功能。
 
 ## 常见问题
 
@@ -295,7 +293,7 @@ Playwright 使用本机 5175，不占用演示站点 5174。GitHub Actions 定�
 
 ### 找不到 `construction_service`、`api` 或 `app.main`
 
-确认当前目录和命令：AI 使用 `--app-dir construction_service api.app:app`；业务使用 `app.app:app`。根目录空 `main.py`、前端 `vue-demo/` 均不是本网站的启动入口。
+确认当前目录和命令：AI 使用 `--app-dir construction_service api.app:app`；业务使用 `app.app:app`。分别在对应后端项目目录执行，避免误用入口。
 
 ### 订单为空、业务网关返回 502 或订单详情失败
 
@@ -311,7 +309,7 @@ Playwright 使用本机 5175，不占用演示站点 5174。GitHub Actions 定�
 
 ### 手机输入时跳动或键盘遮住输入框
 
-刷新加载最新构建。手机布局使用 visualViewport 和 16px 输入字号，避免整页 scrollIntoView；已验证缩小视口，但 iPhone 微信真实键盘仍需实机确认。参考 [手机布局修复说明](docs/手机聊天布局修复.md)。
+刷新加载最新构建。手机布局使用 visualViewport 和 16px 输入字号，避免整页 scrollIntoView；已验证缩小视口，但 iPhone 微信真实键盘仍需实机确认。
 
 ### 数字人不可用 / 构建提示大包
 
@@ -333,7 +331,7 @@ Playwright 使用本机 5175，不占用演示站点 5174。GitHub Actions 定�
 
 ## 许可证与发布限制
 
-根 [LICENSE](LICENSE) 当前明确未授予开源或再发布许可，只用于说明私有准备状态。**TODO：核实原教学代码、图片和视频授权，确认署名后再选择开源许可证。** 第三方依赖仍适用各自许可证。
+根 [LICENSE](LICENSE) 当前明确未授予开源或再发布许可，只用于说明私有准备状态。**TODO：核实原教学代码与第三方图片授权，确认署名后再选择开源许可证。** 第三方依赖仍适用各自许可证。
 
 本机私密配置、备份和缓存被 `.gitignore` 排除，但保留在电脑上。不要直接打包整个工作目录上传；已经泄露或曾被分享的 API Key、数据库口令必须在账号侧轮换，删除源码值不能使旧凭据失效。仓库保持 private；公开前仍需确认授权。
 

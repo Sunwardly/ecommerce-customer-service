@@ -18,6 +18,4 @@ Invoke-Check "$taskRoot\customer-service-frontend" 'npm.cmd' @('run', 'lint')
 Invoke-Check "$taskRoot\customer-service-frontend" 'npm.cmd' @('audit', '--audit-level=high')
 Invoke-Check "$taskRoot\customer-service-frontend" 'npm.cmd' @('run', 'build')
 if (!$SkipBrowser) { Invoke-Check "$taskRoot\customer-service-frontend" 'npm.cmd' @('test') }
-Invoke-Check "$taskRoot\customer-service-frontend\vue-demo" 'npm.cmd' @('audit', '--audit-level=high')
-Invoke-Check "$taskRoot\customer-service-frontend\vue-demo" 'npm.cmd' @('run', 'build')
 Write-Host 'All requested checks passed.'

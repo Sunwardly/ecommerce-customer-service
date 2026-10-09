@@ -68,5 +68,3 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm test
-      - run: npm ci && npm audit --audit-level=high && npm run build
-        working-directory: customer-service-frontend/vue-demo
