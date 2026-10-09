@@ -1,0 +1,28 @@
+{
+  "name": "atguigu-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src vite.config.js playwright.config.js tests",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "lm-avatar-chat-sdk": "^1.1.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^10.12.0",
+    "eslint-plugin-vue": "^10.11.1",
+    "globals": "^16.5.0",
+    "vite": "^6.2.0"
+  },
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  }
+}

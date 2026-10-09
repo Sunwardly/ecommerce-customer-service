@@ -1,0 +1,43 @@
+# Local credentials; only sanitized templates belong in Git.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+visitor-session.key
+demo-access-password.txt
+# Dependencies and generated output
+node_modules/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+htmlcov/
+playwright-report/
+test-results/
+# Machine-specific state and private backups
+backups/
+.runtime/
+.idea/
+.workbuddy/
+.vscode/
+*.log
+*.pid
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+database-dumps/
+dumps/
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db

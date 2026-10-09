@@ -1,0 +1,72 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: dummy-ci-only
+          MYSQL_DATABASE: ecs_business
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      LLM_MODEL: test-model
+      LLM_BASE_URL: https://example.invalid/v1
+      LLM_API_KEY: test-only-not-a-real-key
+      COMMERCE_API_BASE_URL: http://127.0.0.1:18081
+      DATABASE_URL: mysql+aiomysql://root:dummy-ci-only@127.0.0.1:3306/ecs_ai
+      APP_HOST: 127.0.0.1
+      APP_PORT: '18082'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv python install 3.12
+      - run: uv run --project customer-service-backend --python 3.12 --frozen python scripts/check_repository.py
+      - run: uv sync --project customer-service-backend --python 3.12 --frozen
+      - run: uv run --frozen python -m unittest discover -s tests -v
+        working-directory: customer-service-backend
+      - run: uv run --frozen python check_flows.py && uv run --frozen python check_steps.py
+        working-directory: customer-service-backend
+      - run: uv sync --frozen --python 3.12
+        working-directory: ecommerce-service-backend
+      - run: uv run --frozen python -m unittest discover -s tests -v
+        working-directory: ecommerce-service-backend
+        env:
+          DATABASE_URL: mysql+pymysql://dummy:dummy@127.0.0.1/ci_business
+      - run: |
+          uv run --frozen python -c "from app.database import engine; from sqlalchemy import text; connection=engine.connect(); connection.execute(text('CREATE DATABASE IF NOT EXISTS ecs_ai CHARACTER SET utf8mb4')); connection.close()"
+          uv run --frozen python -m app.init_demo --expected-database ecs_business --seed
+          uv run --frozen python -m app.init_demo --expected-database ecs_business --seed
+        working-directory: ecommerce-service-backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:dummy-ci-only@127.0.0.1:3306/ecs_business
+      - run: uv run --frozen python -m construction_service.init_db --expected-database ecs_ai
+        working-directory: customer-service-backend
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: customer-service-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: customer-service-frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm audit --audit-level=high
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm ci && npm audit --audit-level=high && npm run build
+        working-directory: customer-service-frontend/vue-demo
