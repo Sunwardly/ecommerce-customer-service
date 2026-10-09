@@ -20,8 +20,11 @@ test('mobile keyboard-sized viewport keeps composer visible and avoids page scro
   await input.fill('你好')
   await page.setViewportSize({ width: 390, height: 430 })
   await expect(input).toBeVisible()
-  const bounds = await input.boundingBox()
-  expect(bounds.y + bounds.height).toBeLessThanOrEqual(430)
+  // Viewport resize is applied by the app in requestAnimationFrame.
+  await expect.poll(async () => {
+    const bounds = await input.boundingBox()
+    return bounds ? bounds.y + bounds.height : Infinity
+  }).toBeLessThanOrEqual(430)
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
   await page.getByRole('button', { name: '发送', exact: true }).click()
   await expect(page.getByText('测试客服回复', { exact: true })).toBeVisible()
